@@ -1,0 +1,24 @@
+name: Cargo Build & Test
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Test on Anaconda
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v3.0.4
+    - name: Install Matplotlib (Anaconda)
+      run: $CONDA/bin/conda install conda-forge::matplotlib
+    - uses: dtolnay/rust-toolchain@stable
+    - name: Run
+      shell: bash
+      run: |
+        eval "$($CONDA/bin/conda shell.bash activate)"
+        PYO3_PRINT_CONFIG=1 cargo build || true
+        echo "▪▪▪ ls -l /Users/runner/miniconda3/lib/libpython*"
+        ls -l /Users/runner/miniconda3/lib/libpython*
+        cargo run
